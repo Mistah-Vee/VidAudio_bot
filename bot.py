@@ -9,9 +9,9 @@ from telegram.ext import (
     ContextTypes, filters
 )
 
-BOT_TOKEN = os.environ["8781452342:AAFvAObtdRM4IAFrb6d1rwfLmjfmIYqtigE"]
-BASE_URL = os.environ.get("BASE_URL")          # only set on Railway
-PORT = int(os.environ.get("PORT", "8080"))     # Railway provides PORT
+BOT_TOKEN = os.environ["BOT_TOKEN"]            # <-- variable name, not the token
+BASE_URL = os.environ.get("BASE_URL")          # set only on Railway
+PORT = int(os.environ.get("PORT", "8080"))
 
 URL_RE = re.compile(r"https?://\S+", re.IGNORECASE)
 
@@ -40,7 +40,7 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
 async def on_text(update: Update, context: ContextTypes.DEFAULT_TYPE):
     url = extract_url(update.message.text)
     if not url:
-        return  # ignore non-links (keeps groups clean)
+        return
 
     chat_id = update.effective_chat.id
     user_id = update.effective_user.id
@@ -93,11 +93,11 @@ def build_app() -> Application:
 if __name__ == "__main__":
     app = build_app()
 
-    # LOCAL DEV (polling): BASE_URL not set
+    # Local dev (polling): BASE_URL not set
     if not BASE_URL:
         app.run_polling(allowed_updates=Update.ALL_TYPES)
     else:
-        # PRODUCTION (webhook): BASE_URL set
+        # Railway (webhook): BASE_URL set
         app.run_webhook(
             listen="0.0.0.0",
             port=PORT,
